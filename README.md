@@ -2,17 +2,7 @@
 
 A modern, full-stack Personal Expense Tracker Dashboard built with **Python, Flask, SQLite, Chart.js, HTML, CSS, and JavaScript**. The application helps users efficiently manage their personal finances with budgeting, analytics, AI-powered insights, recurring transactions, bill reminders, and interactive dashboards.
 
----
 
-## 📸 Project Preview
-
-> Add screenshots here after uploading them.
-
-| Dashboard | Analytics |
-|-----------|-----------|
-| ![Dashboard](screenshots/dashboard.png) | ![Analytics](screenshots/analytics.png) |
-
----
 
 # 🚀 Features
 
