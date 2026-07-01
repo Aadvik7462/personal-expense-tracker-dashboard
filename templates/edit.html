@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% set title = "Edit Transaction" %}
+{% set page_heading = "Edit Transaction" %}
+{% set page_subtitle = "Update your transaction details." %}
+
+{% block content %}
+
+<div class="form-box edit-form">
+
+    <h2>Update Transaction</h2>
+
+    <form method="POST">
+
+        <input
+            type="text"
+            name="title"
+            value="{{ transaction[2] }}"
+            required
+        >
+
+        <input
+            type="number"
+            name="amount"
+            value="{{ transaction[3] }}"
+            step="0.01"
+            required
+        >
+
+        <select name="category" required>
+
+            <option value="Salary" {% if transaction[4]=="Salary" %}selected{% endif %}>Salary</option>
+
+            <option value="Food" {% if transaction[4]=="Food" %}selected{% endif %}>Food</option>
+
+            <option value="Travel" {% if transaction[4]=="Travel" %}selected{% endif %}>Travel</option>
+
+            <option value="Shopping" {% if transaction[4]=="Shopping" %}selected{% endif %}>Shopping</option>
+
+            <option value="Bills" {% if transaction[4]=="Bills" %}selected{% endif %}>Bills</option>
+
+            <option value="Education" {% if transaction[4]=="Education" %}selected{% endif %}>Education</option>
+
+            <option value="Health" {% if transaction[4]=="Health" %}selected{% endif %}>Health</option>
+
+            <option value="Entertainment" {% if transaction[4]=="Entertainment" %}selected{% endif %}>Entertainment</option>
+
+            <option value="Investment" {% if transaction[4]=="Investment" %}selected{% endif %}>Investment</option>
+
+            <option value="Other" {% if transaction[4]=="Other" %}selected{% endif %}>Other</option>
+
+        </select>
+
+        <select name="type" required>
+
+            <option value="Income" {% if transaction[5]=="Income" %}selected{% endif %}>Income</option>
+
+            <option value="Expense" {% if transaction[5]=="Expense" %}selected{% endif %}>Expense</option>
+
+        </select>
+
+        <input
+            type="date"
+            name="date"
+            value="{{ transaction[6] }}"
+            required
+        >
+
+        <button type="submit">
+            Update Transaction
+        </button>
+
+        <a href="/transactions" class="back-btn">
+            Back to Transactions
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

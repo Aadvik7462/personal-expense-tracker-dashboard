@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% set title = "Calendar" %}
+{% set page_heading = "Expense Calendar" %}
+{% set page_subtitle = "View transactions and bill reminders by date." %}
+
+{% block content %}
+
+<div class="calendar-box">
+
+    <div class="section-title">
+        <h2>Calendar View</h2>
+    </div>
+
+    {% if calendar_items %}
+
+        <div class="calendar-list">
+
+            {% for date, items in calendar_items.items() %}
+
+            <div class="calendar-day-card">
+
+                <h3>{{ date }}</h3>
+
+                {% for item in items %}
+
+                <div class="calendar-event {% if item.kind == 'bill' %}bill-event{% elif item.type == 'Income' %}income-event{% else %}expense-event{% endif %}">
+
+                    <div>
+                        <strong>{{ item.title }}</strong>
+                        <p>{{ item.category }} | {{ item.type }}</p>
+                    </div>
+
+                    <span>₹{{ item.amount }}</span>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <p class="note">No transactions or bill reminders available for calendar view.</p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

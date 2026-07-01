@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker Dashboard</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <h2>ExpenseTracker</h2>
+
+    <ul>
+        <li>Dashboard</li>
+        <li>Transactions</li>
+        <li>Analytics</li>
+        <li>Reports</li>
+    </ul>
+</nav>
+
+<div class="main">
+
+    <div class="header">
+        <h1>Dashboard Overview</h1>
+        <p>Monitor your income, expenses, and savings summary.</p>
+    </div>
+
+    <div class="summary-card balance-card">
+        <h3>Total Balance</h3>
+        <h1>₹{{ balance }}</h1>
+        <p>Your current available balance</p>
+    </div>
+
+    <div class="cards">
+
+        <div class="card income-card">
+            <p>Total Income</p>
+            <h2>₹{{ income }}</h2>
+        </div>
+
+        <div class="card expense-card">
+            <p>Total Expense</p>
+            <h2>₹{{ expense }}</h2>
+        </div>
+
+        <div class="card saving-card">
+            <p>Total Transactions</p>
+            <h2>{{ transactions|length }}</h2>
+        </div>
+
+    </div>
+
+    <div class="charts-grid">
+
+        <div class="chart-card">
+            <h2>Income vs Expense</h2>
+            <canvas id="incomeExpenseChart"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <h2>Expense by Category</h2>
+            <canvas id="categoryChart"></canvas>
+        </div>
+
+        <div class="chart-card wide-chart">
+            <h2>Monthly Expense Trend</h2>
+            <canvas id="monthlyChart"></canvas>
+        </div>
+
+    </div>
+
+    <div class="content-grid">
+
+        <div class="form-box">
+            <h2>Add New Transaction</h2>
+
+            <form method="POST">
+
+                <input type="text" name="title" placeholder="Transaction Title" required>
+
+                <input type="number" name="amount" placeholder="Amount" step="0.01" required>
+
+                <select name="category" required>
+                    <option value="">Select Category</option>
+                    <option value="Salary">Salary</option>
+                    <option value="Food">Food</option>
+                    <option value="Travel">Travel</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Bills">Bills</option>
+                    <option value="Education">Education</option>
+                    <option value="Health">Health</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Investment">Investment</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <select name="type" required>
+                    <option value="">Select Type</option>
+                    <option value="Income">Income</option>
+                    <option value="Expense">Expense</option>
+                </select>
+
+                <input type="date" name="date" required>
+
+                <button type="submit">Add Transaction</button>
+
+            </form>
+        </div>
+
+        <div class="table-box">
+            <h2>Recent Transactions</h2>
+
+            <form method="GET" class="filter-form">
+
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search by title..."
+                    value="{{ search }}"
+                >
+
+                <select name="category">
+                    <option value="">All Categories</option>
+                    <option value="Salary" {% if selected_category == "Salary" %}selected{% endif %}>Salary</option>
+                    <option value="Food" {% if selected_category == "Food" %}selected{% endif %}>Food</option>
+                    <option value="Travel" {% if selected_category == "Travel" %}selected{% endif %}>Travel</option>
+                    <option value="Shopping" {% if selected_category == "Shopping" %}selected{% endif %}>Shopping</option>
+                    <option value="Bills" {% if selected_category == "Bills" %}selected{% endif %}>Bills</option>
+                    <option value="Education" {% if selected_category == "Education" %}selected{% endif %}>Education</option>
+                    <option value="Health" {% if selected_category == "Health" %}selected{% endif %}>Health</option>
+                    <option value="Entertainment" {% if selected_category == "Entertainment" %}selected{% endif %}>Entertainment</option>
+                    <option value="Investment" {% if selected_category == "Investment" %}selected{% endif %}>Investment</option>
+                    <option value="Other" {% if selected_category == "Other" %}selected{% endif %}>Other</option>
+                </select>
+
+                <select name="type">
+                    <option value="">All Types</option>
+                    <option value="Income" {% if selected_type == "Income" %}selected{% endif %}>Income</option>
+                    <option value="Expense" {% if selected_type == "Expense" %}selected{% endif %}>Expense</option>
+                </select>
+
+                <select name="sort">
+                    <option value="newest" {% if selected_sort == "newest" %}selected{% endif %}>Newest First</option>
+                    <option value="oldest" {% if selected_sort == "oldest" %}selected{% endif %}>Oldest First</option>
+                    <option value="highest" {% if selected_sort == "highest" %}selected{% endif %}>Highest Amount</option>
+                    <option value="lowest" {% if selected_sort == "lowest" %}selected{% endif %}>Lowest Amount</option>
+                </select>
+
+                <button type="submit">Apply</button>
+
+                <a href="/" class="clear-btn">Clear</a>
+
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Amount</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td>{{ t[1] }}</td>
+                        <td>₹{{ t[2] }}</td>
+                        <td>{{ t[3] }}</td>
+                        <td>
+                            {% if t[4] == "Income" %}
+                                <span class="badge income">Income</span>
+                            {% else %}
+                                <span class="badge expense">Expense</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ t[5] }}</td>
+                        <td>
+                            <a href="/edit/{{ t[0] }}" class="edit-btn">Edit</a>
+
+                            <a
+                                href="/delete/{{ t[0] }}"
+                                class="delete-btn"
+                                onclick="return confirm('Are you sure you want to delete this transaction?');"
+                            >
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    const incomeExpenseLabels = {{ chart_data.income_expense_labels | safe }};
+    const incomeExpenseValues = {{ chart_data.income_expense_values | safe }};
+
+    const categoryLabels = {{ chart_data.category_labels | safe }};
+    const categoryValues = {{ chart_data.category_values | safe }};
+
+    const monthLabels = {{ chart_data.month_labels | safe }};
+    const monthValues = {{ chart_data.month_values | safe }};
+
+    new Chart(document.getElementById("incomeExpenseChart"), {
+        type: "doughnut",
+        data: {
+            labels: incomeExpenseLabels,
+            datasets: [{
+                data: incomeExpenseValues
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    new Chart(document.getElementById("categoryChart"), {
+        type: "pie",
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                data: categoryValues
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    new Chart(document.getElementById("monthlyChart"), {
+        type: "bar",
+        data: {
+            labels: monthLabels,
+            datasets: [{
+                label: "Monthly Expense",
+                data: monthValues
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+</script>
+
+</body>
+
+</html>

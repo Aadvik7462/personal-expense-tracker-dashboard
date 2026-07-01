@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% set title = "Analytics" %}
+{% set page_heading = "Advanced Analytics Dashboard" %}
+{% set page_subtitle = "Analyze income, expenses, savings, categories, and yearly financial trends." %}
+
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="cards">
+
+    <div class="card income-card">
+        <p>Total Income</p>
+        <h2>₹{{ income }}</h2>
+    </div>
+
+    <div class="card expense-card">
+        <p>Total Expense</p>
+        <h2>₹{{ expense }}</h2>
+    </div>
+
+    <div class="card saving-card">
+        <p>Current Balance</p>
+        <h2>₹{{ balance }}</h2>
+    </div>
+
+</div>
+
+<div class="charts-grid">
+
+    <div class="chart-card">
+        <h2>Income vs Expense</h2>
+        <canvas id="incomeExpenseChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <h2>Expense by Category</h2>
+        <canvas id="categoryChart"></canvas>
+    </div>
+
+    <div class="chart-card wide-chart">
+        <h2>Monthly Income vs Expense</h2>
+        <canvas id="monthlyComparisonChart"></canvas>
+    </div>
+
+    <div class="chart-card wide-chart">
+        <h2>Monthly Savings Trend</h2>
+        <canvas id="savingsChart"></canvas>
+    </div>
+
+    <div class="chart-card wide-chart">
+        <h2>Monthly Expense Trend</h2>
+        <canvas id="expenseChart"></canvas>
+    </div>
+
+    <div class="chart-card wide-chart">
+        <h2>Monthly Income Trend</h2>
+        <canvas id="incomeChart"></canvas>
+    </div>
+
+    <div class="chart-card wide-chart">
+        <h2>Yearly Income vs Expense</h2>
+        <canvas id="yearlyChart"></canvas>
+    </div>
+
+</div>
+
+<script>
+const incomeExpenseLabels = {{ chart_data.income_expense_labels|safe }};
+const incomeExpenseValues = {{ chart_data.income_expense_values|safe }};
+
+const categoryLabels = {{ chart_data.category_labels|safe }};
+const categoryValues = {{ chart_data.category_values|safe }};
+
+const expenseMonthLabels = {{ chart_data.expense_month_labels|safe }};
+const expenseMonthValues = {{ chart_data.expense_month_values|safe }};
+
+const incomeMonthLabels = {{ chart_data.income_month_labels|safe }};
+const incomeMonthValues = {{ chart_data.income_month_values|safe }};
+
+const comparisonMonthLabels = {{ chart_data.comparison_month_labels|safe }};
+const comparisonIncomeValues = {{ chart_data.comparison_income_values|safe }};
+const comparisonExpenseValues = {{ chart_data.comparison_expense_values|safe }};
+
+const savingsMonthLabels = {{ chart_data.savings_month_labels|safe }};
+const savingsValues = {{ chart_data.savings_values|safe }};
+
+const yearlyLabels = {{ chart_data.yearly_labels|safe }};
+const yearlyIncomeValues = {{ chart_data.yearly_income_values|safe }};
+const yearlyExpenseValues = {{ chart_data.yearly_expense_values|safe }};
+
+new Chart(document.getElementById("incomeExpenseChart"), {
+    type: "doughnut",
+    data: {
+        labels: incomeExpenseLabels,
+        datasets: [{
+            data: incomeExpenseValues,
+            backgroundColor: ["#16a34a", "#dc2626"]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+new Chart(document.getElementById("categoryChart"), {
+    type: "pie",
+    data: {
+        labels: categoryLabels,
+        datasets: [{
+            data: categoryValues
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+new Chart(document.getElementById("monthlyComparisonChart"), {
+    type: "bar",
+    data: {
+        labels: comparisonMonthLabels,
+        datasets: [
+            {
+                label: "Income",
+                data: comparisonIncomeValues,
+                backgroundColor: "#16a34a"
+            },
+            {
+                label: "Expense",
+                data: comparisonExpenseValues,
+                backgroundColor: "#dc2626"
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+new Chart(document.getElementById("savingsChart"), {
+    type: "line",
+    data: {
+        labels: savingsMonthLabels,
+        datasets: [{
+            label: "Savings",
+            data: savingsValues,
+            borderColor: "#2563eb",
+            backgroundColor: "#bfdbfe",
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+new Chart(document.getElementById("expenseChart"), {
+    type: "bar",
+    data: {
+        labels: expenseMonthLabels,
+        datasets: [{
+            label: "Expense",
+            data: expenseMonthValues,
+            backgroundColor: "#ef4444"
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+new Chart(document.getElementById("incomeChart"), {
+    type: "line",
+    data: {
+        labels: incomeMonthLabels,
+        datasets: [{
+            label: "Income",
+            data: incomeMonthValues,
+            borderColor: "#16a34a",
+            backgroundColor: "#bbf7d0",
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+new Chart(document.getElementById("yearlyChart"), {
+    type: "bar",
+    data: {
+        labels: yearlyLabels,
+        datasets: [
+            {
+                label: "Yearly Income",
+                data: yearlyIncomeValues,
+                backgroundColor: "#22c55e"
+            },
+            {
+                label: "Yearly Expense",
+                data: yearlyExpenseValues,
+                backgroundColor: "#ef4444"
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | Expense Tracker</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            💰 ExpenseTracker
+        </div>
+
+        <ul class="sidebar-menu">
+
+            <li>
+                <a href="/" class="{% if title == 'Dashboard' %}active-menu{% endif %}">
+                    🏠 Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="/transactions" class="{% if title == 'Transactions' %}active-menu{% endif %}">
+                    💳 Transactions
+                </a>
+            </li>
+
+            <li>
+                <a href="/analytics" class="{% if title == 'Analytics' %}active-menu{% endif %}">
+                    📊 Analytics
+                </a>
+            </li>
+
+            <li>
+                <a href="/reports" class="{% if title == 'Reports' %}active-menu{% endif %}">
+                    📄 Reports
+                </a>
+            </li>
+
+            <li>
+                <a href="/logout" class="sidebar-logout">
+                    🚪 Logout
+                </a>
+            </li>
+
+        </ul>
+    </aside>
+
+    <main class="page-content">
+
+        <div class="topbar">
+            <div>
+                <h2>{{ page_heading }}</h2>
+                <p>{{ page_subtitle }}</p>
+            </div>
+
+            <div class="user-box">
+                👤 {{ session.get("user_name") }}
+            </div>
+            <button id="themeToggle" class="theme-toggle">
+            🌙 Dark
+            </button>
+        </div>
+        {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="toast-container">
+            {% for message in messages %}
+                <div class="toast-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+        {% block content %}{% endblock %}
+
+    </main>
+
+</div>
+<script>
+const toggleBtn = document.getElementById("themeToggle");
+const body = document.body;
+
+if (localStorage.getItem("theme") === "dark") {
+    body.classList.add("dark-mode");
+    toggleBtn.textContent = "☀️ Light";
+}
+
+toggleBtn.addEventListener("click", function () {
+
+    body.classList.toggle("dark-mode");
+
+    if (body.classList.contains("dark-mode")) {
+        localStorage.setItem("theme","dark");
+        toggleBtn.textContent="☀️ Light";
+    } else {
+        localStorage.setItem("theme","light");
+        toggleBtn.textContent="🌙 Dark";
+    }
+
+});
+</script>
+</body>
+
+</html>

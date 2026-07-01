@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+
+{% set title = "Dashboard" %}
+{% set page_heading = "Dashboard Overview" %}
+{% set page_subtitle = "Monitor your income, expenses, balance, and latest transactions." %}
+
+{% block content %}
+
+<h3 class="welcome-text">
+    👋 Welcome back, {{ user_name }}!
+</h3>
+
+<div class="summary-card balance-card">
+    <h3>Total Balance</h3>
+    <h1>₹{{ balance }}</h1>
+    <p>Your current available balance</p>
+</div>
+
+<div class="monthly-summary-box">
+    <h2>Monthly Financial Summary</h2>
+
+    <div class="monthly-summary-grid">
+        <div class="monthly-card income-month">
+            <p>Income This Month</p>
+            <h2>₹{{ monthly_income }}</h2>
+        </div>
+
+        <div class="monthly-card expense-month">
+            <p>Expense This Month</p>
+            <h2>₹{{ monthly_expense }}</h2>
+        </div>
+
+        <div class="monthly-card saving-month">
+            <p>Savings This Month</p>
+            <h2>₹{{ monthly_savings }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="insights-box">
+    <div class="section-title">
+        <h2>AI Financial Insights</h2>
+    </div>
+
+    {% if financial_insights %}
+        <div class="insight-list">
+            {% for insight in financial_insights %}
+            <div class="insight-item">
+                {{ insight }}
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="note">No insights available yet.</p>
+    {% endif %}
+</div>
+<div class="prediction-box">
+
+    <div class="section-title">
+        <h2>AI Spending Predictions</h2>
+    </div>
+
+    {% if ai_predictions %}
+
+        <div class="prediction-list">
+
+            {% for prediction in ai_predictions %}
+            <div class="prediction-item">
+                {{ prediction }}
+            </div>
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <p class="note">No predictions available yet.</p>
+
+    {% endif %}
+
+</div>
+
+<div class="bill-box">
+
+    <div class="section-title">
+        <h2>Bill Reminders</h2>
+    </div>
+
+    <form method="POST" action="/add-bill" class="bill-form">
+
+        <input
+            type="text"
+            name="title"
+            placeholder="Bill title e.g. Electricity, Rent"
+            required
+        >
+
+        <input
+            type="number"
+            name="amount"
+            placeholder="Amount"
+            step="0.01"
+            required
+        >
+
+        <input
+            type="date"
+            name="due_date"
+            required
+        >
+
+        <button type="submit">
+            Add Bill
+        </button>
+
+    </form>
+
+    {% if bill_reminders %}
+
+        <div class="bill-list">
+
+            {% for bill in bill_reminders %}
+            <div class="bill-item">
+
+                <div>
+                    <h3>{{ bill.title }}</h3>
+                    <p>₹{{ bill.amount }} | Due: {{ bill.due_date }}</p>
+
+                    {% if bill.badge == "Paid" %}
+                        <span class="bill-badge paid">Paid</span>
+                    {% elif bill.badge == "Overdue" %}
+                        <span class="bill-badge overdue">Overdue</span>
+                    {% elif bill.badge == "Due Today" %}
+                        <span class="bill-badge today">Due Today</span>
+                    {% else %}
+                        <span class="bill-badge upcoming">Upcoming</span>
+                    {% endif %}
+                </div>
+
+                <div class="bill-actions">
+                    {% if bill.status != "Paid" %}
+                    <a href="/bill-paid/{{ bill.id }}" class="edit-btn">
+                        Mark Paid
+                    </a>
+                    {% endif %}
+
+                    <a
+                        href="/delete-bill/{{ bill.id }}"
+                        class="delete-btn"
+                        onclick="return confirm('Delete this bill reminder?');"
+                    >
+                        Delete
+                    </a>
+                </div>
+
+            </div>
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <p class="note">No bill reminders added yet.</p>
+
+    {% endif %}
+
+</div>
+
+<div class="recurring-box">
+
+    <div class="section-title">
+        <h2>Recurring Transactions</h2>
+    </div>
+
+    <form method="POST" action="/add-recurring" class="recurring-form">
+
+        <input type="text" name="title" placeholder="Title e.g. Salary, Rent" required>
+
+        <input type="number" name="amount" placeholder="Amount" step="0.01" required>
+
+        <select name="category" required>
+            <option value="">Category</option>
+            <option value="Salary">Salary</option>
+            <option value="Food">Food</option>
+            <option value="Travel">Travel</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Bills">Bills</option>
+            <option value="Education">Education</option>
+            <option value="Health">Health</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Investment">Investment</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <select name="type" required>
+            <option value="">Type</option>
+            <option value="Income">Income</option>
+            <option value="Expense">Expense</option>
+        </select>
+
+        <select name="frequency" required>
+            <option value="">Frequency</option>
+            <option value="Daily">Daily</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Yearly">Yearly</option>
+        </select>
+
+        <input type="date" name="start_date" required>
+
+        <button type="submit">Add Recurring</button>
+
+    </form>
+
+    {% if recurring_transactions %}
+
+        <div class="recurring-list">
+
+            {% for r in recurring_transactions %}
+            <div class="recurring-item">
+
+                <div>
+                    <h3>{{ r[1] }}</h3>
+                    <p>
+                        ₹{{ r[2] }} | {{ r[3] }} | {{ r[4] }} | {{ r[5] }} | Starts: {{ r[6] }}
+                    </p>
+
+                    {% if r[7] == 1 %}
+                        <span class="badge income">Active</span>
+                    {% else %}
+                        <span class="badge expense">Inactive</span>
+                    {% endif %}
+                </div>
+
+                <div class="recurring-actions">
+                    <a href="/generate-recurring/{{ r[0] }}" class="edit-btn">
+                        Generate
+                    </a>
+
+                    <a href="/toggle-recurring/{{ r[0] }}" class="delete-btn">
+                        {% if r[7] == 1 %}
+                            Disable
+                        {% else %}
+                            Enable
+                        {% endif %}
+                    </a>
+                </div>
+
+            </div>
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <p class="note">No recurring transactions added yet.</p>
+
+    {% endif %}
+
+</div>
+
+<div class="top-expense-box">
+    <div class="section-title">
+        <h2>Top 5 Largest Expenses</h2>
+    </div>
+
+    {% if top_expenses %}
+        <div class="top-expense-list">
+            {% for expense in top_expenses %}
+            <div class="top-expense-item">
+                <div>
+                    <h3>{{ expense[0] }}</h3>
+                    <p>{{ expense[2] }} | {{ expense[3] }}</p>
+                </div>
+
+                <strong>₹{{ expense[1] }}</strong>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="note">No expense data available yet.</p>
+    {% endif %}
+</div>
+
+<div class="category-box">
+    <div class="section-title">
+        <h2>Expense Percentage by Category</h2>
+    </div>
+
+    {% if category_percentages %}
+        <div class="category-list">
+            {% for item in category_percentages %}
+            <div class="category-item">
+                <div class="category-header">
+                    <span>{{ item.category }}</span>
+                    <strong>{{ item.percent }}%</strong>
+                </div>
+
+                <div class="category-progress-wrapper">
+                    <div
+                        class="category-progress-bar"
+                        style="width: {{ item.percent }}%;">
+                    </div>
+                </div>
+
+                <p>₹{{ item.amount }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="note">No category expense data available yet.</p>
+    {% endif %}
+</div>
+
+<div class="cards">
+    <div class="card income-card">
+        <p>Total Income</p>
+        <h2>₹{{ income }}</h2>
+    </div>
+
+    <div class="card expense-card">
+        <p>Total Expense</p>
+        <h2>₹{{ expense }}</h2>
+    </div>
+
+    <div class="card saving-card">
+        <p>Total Transactions</p>
+        <h2>{{ total_transactions }}</h2>
+    </div>
+</div>
+
+<div class="cards stats-cards">
+    <div class="card income-card">
+        <p>Highest Income</p>
+        <h2>₹{{ highest_income }}</h2>
+    </div>
+
+    <div class="card expense-card">
+        <p>Highest Expense</p>
+        <h2>₹{{ highest_expense }}</h2>
+    </div>
+
+    <div class="card">
+        <p>Average Expense</p>
+        <h2>₹{{ average_expense }}</h2>
+    </div>
+
+    <div class="card saving-card">
+        <p>Most Used Category</p>
+        <h2>{{ most_used_category }}</h2>
+    </div>
+</div>
+
+<div class="budget-box">
+    <div class="section-title">
+        <h2>Monthly Budget Overview</h2>
+    </div>
+
+    <form method="POST" action="/set-budget" class="budget-form">
+        <input
+            type="month"
+            name="month"
+            value="{{ budget_data.selected_month }}"
+            required
+        >
+
+        <input
+            type="number"
+            name="budget"
+            placeholder="Enter monthly budget"
+            value="{{ budget_data.monthly_budget }}"
+            step="0.01"
+            required
+        >
+
+        <button type="submit">
+            Save Budget
+        </button>
+    </form>
+
+    <div class="budget-summary">
+        <div>
+            <p>Monthly Budget</p>
+            <h3>₹{{ budget_data.monthly_budget }}</h3>
+        </div>
+
+        <div>
+            <p>Spent</p>
+            <h3>₹{{ budget_data.spent_amount }}</h3>
+        </div>
+
+        <div>
+            <p>Remaining</p>
+            <h3>₹{{ budget_data.remaining_budget }}</h3>
+        </div>
+
+        <div>
+            <p>Status</p>
+            <h3>{{ budget_data.budget_status }}</h3>
+        </div>
+    </div>
+
+    <div class="progress-wrapper">
+        <div
+            class="progress-bar {% if budget_data.budget_status == 'Budget Exceeded' %}danger-bar{% endif %}"
+            style="width: {{ budget_data.used_percentage if budget_data.used_percentage <= 100 else 100 }}%;">
+        </div>
+    </div>
+
+    <p class="budget-percent">
+        {{ budget_data.used_percentage }}% of budget used
+    </p>
+</div>
+
+<div class="table-box dashboard-table">
+    <div class="section-title">
+        <h2>Recent Transactions</h2>
+        <a href="/transactions" class="view-all-btn">View All</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Type</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for t in recent_transactions %}
+            <tr>
+                <td>{{ t[2] }}</td>
+                <td>₹{{ t[3] }}</td>
+                <td>{{ t[4] }}</td>
+                <td>
+                    {% if t[5] == "Income" %}
+                        <span class="badge income">Income</span>
+                    {% else %}
+                        <span class="badge expense">Expense</span>
+                    {% endif %}
+                </td>
+                <td>{{ t[6] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
